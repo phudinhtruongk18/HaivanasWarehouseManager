@@ -1,5 +1,4 @@
-﻿
-1 file tổng gồm full mã dép hiện có của hàng + số lượng
+﻿1 file tổng gồm full mã dép hiện có của hàng + số lượng
 giả sử kho: 5 mẫu 
 kim tuyến: 10 đôi
 slim: 50 đôi
@@ -13,7 +12,6 @@ hàng hôm nay bán đưuọc: đếm sl trừ trong file tổng
 5 đôi slim, 7 đôi kim tuyến
 thì sẽ trừ trong file tổng đi sl bán.
 _____________
-_____________
 hàng nhập về 
 nhập 5 đôi slim 
 + vào kho 
@@ -22,16 +20,8 @@ _____
 note: trong file tổng chưa có mã sản phẩm thì thông báo.
 + xuat nhung file khong co trong file tong ra 1 file moi (KhongRo.excel)
 
-
 Ouput cua tool:
  - KhoTheoNgay
-
--sub
-	+ HÀNG GỬI ĐI 
-	+ HÀNG TRẢ SHOP
--plus
-	+ HÀNG NHẬN VỀ 
-
 
 class can thiet :
 
@@ -39,6 +29,8 @@ WareHouse(List)
 + <ProductOnHand>
 - ReadData
 - Export
+- Sum
+- Visualization
 
 ProductOnHand
 + bar_code
@@ -56,11 +48,3 @@ ProductInDay
 EcxelManager:
 - Read
 - Export
-
-thong bao
-	+ khongotntai.txt
-
-
-	+END_DAY	
-	+SUM()
-

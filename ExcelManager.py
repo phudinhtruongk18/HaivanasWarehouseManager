@@ -5,21 +5,20 @@ from openpyxl.styles import Font, Alignment, GradientFill
 from openpyxl.utils import get_column_letter
 
 
-
 def read_excel_file(fileName,sheetname):
+    # time a lot of time
     docData = excel.load_workbook(filename=fileName)
     duLieu = docData[sheetname]
     listDuLieuTemp = []
-    
     for index, dataTemp in enumerate(duLieu.values):
         # bo ba hang đau tien
         if index < 3:
             continue
         # ket thuc neu xuat hien chu nay
-        if dataTemp[0] is None or dataTemp[0] == "END_DATABASE":
+        if dataTemp[0] is None or dataTemp[0] == "END_WAREHOUSE":
             break
-        # lay du lieu tu cot 0 -> 5
-        listDuLieuTemp.append(dataTemp[0:6])
+        # lay du lieu tu 7 cot
+        listDuLieuTemp.append(dataTemp[:7])
     return listDuLieuTemp
 
 
