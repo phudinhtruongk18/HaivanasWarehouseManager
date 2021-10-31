@@ -5,7 +5,7 @@ from openpyxl.styles import Font, Alignment, GradientFill
 from openpyxl.utils import get_column_letter
 
 
-def read_excel_file(fileName,sheetname):
+def read_warehouse(fileName,sheetname):
     # time a lot of time
     docData = excel.load_workbook(filename=fileName)
     duLieu = docData[sheetname]
@@ -15,7 +15,7 @@ def read_excel_file(fileName,sheetname):
         if index < 3:
             continue
         # ket thuc neu xuat hien chu nay
-        if dataTemp[0] is None or dataTemp[0] == "END_WAREHOUSE":
+        if dataTemp[0] is None or dataTemp[0] == "":
             break
         # lay du lieu tu 7 cot
         listDuLieuTemp.append(dataTemp[:7])

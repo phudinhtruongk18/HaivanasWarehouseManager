@@ -1,11 +1,18 @@
-import openpyxl as excel
-from ExcelManager import read_excel_file
-from ObjCanThiet import WareHouse,ProductInDay,ProductOnHand
+from ExcelManager import read_warehouse
+from ObjCanThiet import WareHouse,ProductInDay,ProductOnHand,SaleData
 
-print("Starting")
-raw_data = read_excel_file("./Data/STOCK-ON-HAND.xlsx","SOH GOOD")
+#
+# print("Starting")
+# raw_data = read_warehouse("./Data/STOCK-ON-HAND.xlsx","SOH GOOD")
+# print("Got data")
+# WareHouse(products_on_hand=raw_data)
+#
 
-print("Got data")
+stock_in_day = SaleData("./Data/day_sale.xlsx")
+print(stock_in_day.sheet_names)
 
-WareHouse(products_on_hand=raw_data)
+get_sheet = "31.10"
+
+in_stocks = stock_in_day.get_list_product(get_sheet)
+
 
