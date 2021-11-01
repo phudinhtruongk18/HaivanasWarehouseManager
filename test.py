@@ -22,4 +22,9 @@ if stock_non_def.__len__() > 0:
     # return ngay day
 
 warehouse.cuculate_stock()
-warehouse.export()
+summ_in = warehouse.get_sum_in()
+summ_sale = warehouse.get_sum_sale()
+summ_ava = warehouse.get_sum_ava()
+warehouse.export(summ_in,summ_sale,summ_ava)
+
+warehouse.visualization()

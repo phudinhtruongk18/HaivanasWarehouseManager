@@ -1,8 +1,13 @@
 import openpyxl as excel
 from ExcelManager import export_warehouse
 import datetime
+import pandas
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy.stats import norm, boxcox
 
-class ProductInDay():
+
+class ProductInDay:
     def __init__(self, bar_code):
         self.bar_code = str(bar_code).strip()
         self.sale_quantity = 0
@@ -161,6 +166,16 @@ class ProductOnHand:
         self.in_stock = stock_in_day.in_quantity
         self.new_ava_stock = self.ava_stock - self.sale_stock + self.in_stock
 
+    def to_dict(self):
+        return {
+            'bar_code': self.bar_code,
+            'en_name': self.en_name,
+            'vn_name': self.vn_name,
+            'in_stock': self.in_stock,
+            'sale_stock': self.sale_stock,
+            'new_ava_stock': self.new_ava_stock,
+        }
+
 
 class WareHouse(list):
     def __init__(self, products_on_hand):
@@ -200,8 +215,8 @@ class WareHouse(list):
             # print(self[index_stock])
             # print("=============================")
 
-    def export(self):
-        export_warehouse(self)
+    def export(self,sum_in, sum_sale, sum_ava):
+        export_warehouse(self,sum_in, sum_sale, sum_ava)
 
     def get_stocks_not_in_warehouse(self):
         not_in_warehouse = []
@@ -219,7 +234,52 @@ class WareHouse(list):
             for stock in not_in_warehouse:
                 text.write(stock.bar_code + "\n")
 
-    def visualization(self):
-        print("VIS")
+    def get_sum_in(self):
+        sum_in = 0
+        for temp_stock in self:
+            sum_in += temp_stock.in_stock
+        return sum_in
 
+    def get_sum_sale(self):
+        sum_sale = 0
+        for temp_stock in self:
+            sum_sale += temp_stock.sale_stock
+        return sum_sale
+
+    def get_sum_ava(self):
+        sum_new_ava = 0
+        for temp_stock in self:
+            sum_new_ava += temp_stock.new_ava_stock
+        return sum_new_ava
+
+    def to_data_frame(self):
+        dataframe = pandas.DataFrame.from_records([s.to_dict() for s in self])
+        print(dataframe)
+        return dataframe
+
+    def visualization(self):
+        dataframe = self.to_data_frame()
+
+        watehouse = dataframe.sort_values(by=['new_ava_stock'], ascending=False)
+        watehouse = watehouse[:50]
+        print(watehouse)
+
+        watehouse.plot(kind='bar', x='vn_name', y='new_ava_stock',figsize=(20,8))
+        plt.xticks(rotation=40)
+        plt.savefig("Output/warehouse.jpg")
+
+        best_sell = dataframe.sort_values(by=['sale_stock'], ascending=False)
+        best_sell = best_sell[:50]
+        best_sell.plot(kind='bar', x='vn_name', y='sale_stock',figsize=(20,8))
+
+        plt.xticks(rotation=40)
+        plt.savefig("Output/best_seller.jpg")
+
+        in_stock = dataframe.sort_values(by=['in_stock'], ascending=False)
+        in_stock = in_stock[:50]
+        in_stock.plot(kind='bar', x='vn_name', y='in_stock',figsize=(20,8))
+
+        plt.xticks(rotation=40)
+        plt.savefig("Output/return.jpg")
+        plt.show()
 

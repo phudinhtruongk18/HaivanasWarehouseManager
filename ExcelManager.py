@@ -22,7 +22,7 @@ def read_warehouse(fileName, sheetname):
     return listDuLieuTemp
 
 
-def export_warehouse(warehouse_stock):
+def export_warehouse(warehouse_stock, sum_in, sum_sale, sum_ava):
     ghiData = excel.Workbook()
     trangTinh = ghiData.active
     trangTinh.title = "Sheet1"
@@ -32,7 +32,7 @@ def export_warehouse(warehouse_stock):
     trangTinh.append(("",))
     title = trangTinh['A1']
 
-    title.font= Font(size=19, bold=True)
+    title.font = Font(size=19, bold=True)
     font_son = Font(size=12)
     font_father = Font(size=16, bold=True)
 
@@ -66,7 +66,7 @@ def export_warehouse(warehouse_stock):
         a.font = b.font = c.font = d.font = e.font = f.font = font_son
         a.alignment = b.alignment = c.alignment = d.alignment = e.alignment = f.alignment = alignment
 
-    trangTinh.append(("END_WAREHOUSE",))
+    trangTinh.append(("END_WAREHOUSE", "", "", sum_in, sum_sale, sum_ava))
 
     linkthumuc = os.curdir
     x = datetime.datetime.now()
