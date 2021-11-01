@@ -1,12 +1,12 @@
 import os
 import tkinter as jra
-import tkinter.messagebox
-from threading import Thread
 from tkinter import messagebox, ttk
-from tkinter.filedialog import askopenfilename, askdirectory
+from tkinter.filedialog import askopenfilename
 from tkinter import font as tkfont
 
-from test import thuc_thi_cong_viec
+from ExcelManager import read_warehouse
+from ObjCanThiet import WareHouse, SaleData
+from helper import create_export_fordel
 
 
 def openThuMuc(link=""):
@@ -14,12 +14,11 @@ def openThuMuc(link=""):
 
 
 class Application(jra.Frame):
-    def __init__(self, master=None,api_key=None):
+    def __init__(self, master=None):
         super().__init__(master)
-        self.api_key = api_key
         master.title("WareHouseManager")
         master.iconbitmap("logo.ico")
-        w = 555
+        w = 420
         h = 500
         ws = master.winfo_screenwidth()
         hs = master.winfo_screenheight()
@@ -29,89 +28,132 @@ class Application(jra.Frame):
 
         self.canvas_batdau = jra.Frame(self)
 
-        self.labelllll = jra.Label(self.canvas_batdau, text="Num of Threads")
-        self.labelllll.grid(row=1, column=0)
-
         self.font = tkfont.Font(family='Helvetica', size=12, weight="bold")
 
-        self.entry_link = jra.Text(self.canvas_batdau, font=tkfont.Font(family='Helvetica', size=14, weight="bold"),
-                                   fg="#000000",
-                                   bg="#B0F5AB", width=50, height=10)
-        self.entry_link.grid(row=4, column=0)
+        jra.Label(self.canvas_batdau, text="").grid(row=1, column=0)
 
+        self.pick_warehouse = jra.Button(self.canvas_batdau, text="Pick Warehouse", font=self.font, fg="#ffffff",
+                                          bg="#263942",
+                                          width=20,
+                                          height=2)
+        self.pick_warehouse["command"] = self.pick_warehouse_file
+        self.pick_warehouse.grid(row=2, column=0)
 
-        jra.Label(self.canvas_batdau, text="Your link").grid(row=3, column=0)
+        jra.Label(self.canvas_batdau, text="").grid(row=3, column=0)
 
-        self.entry_api = jra.Entry(self.canvas_batdau, font=tkfont.Font(family='Helvetica', size=14, weight="bold"),
-                                   fg="#000000",
-                                   bg="#B0F5AB", width=50)
-        self.entry_api.grid(row=2, column=0)
-
-        self.entry_api.insert(1, self.api_key)
+        self.pick_day_data = jra.Button(self.canvas_batdau, text="Pick Day Sale", font=self.font, fg="#ffffff",
+                                        bg="#263942",
+                                        width=20,
+                                        height=2)
+        self.pick_day_data["command"] = self.pick_day_file
+        self.pick_day_data.grid(row=4, column=0)
 
         jra.Label(self.canvas_batdau).grid(row=5, column=0)
+
+        self.string_selected_sheet = jra.StringVar(self.master, value="Select Sheet")
+        self.sheet_option_menu = jra.OptionMenu(self.canvas_batdau, self.string_selected_sheet, None)
+        self.sheet_option_menu.configure(font=self.font, width=18, anchor=jra.CENTER, bd=5)
+        self.menu_option = self.master.nametowidget(self.sheet_option_menu.menuname)
+        self.menu_option.config(font=self.font)
+
+        self.sheet_option_menu.grid(row=7, column=0)
+
+        jra.Label(self.canvas_batdau).grid(row=8, column=0)
+
+        self.is_visualization = jra.BooleanVar(self)
+        self.check_box = jra.Checkbutton(self, text="Visualization", variable=self.is_visualization)
+        self.check_box.grid(row=0, column=0)
+
         self.buttonSoSanh = jra.Button(self.canvas_batdau, text="Thực thi", font=self.font, fg="#ffffff",
                                        bg="#263942",
                                        width=20,
                                        height=2)
         self.buttonSoSanh["command"] = self.kiem_tra_va_thuc_thi
-        self.buttonSoSanh.grid(row=6, column=0)
+        self.buttonSoSanh.grid(row=10, column=0)
 
-        jra.Label(self.canvas_batdau).grid(row=10, column=0)
+        jra.Label(self.canvas_batdau).grid(row=11, column=0)
 
         self.buttonThuMuc = jra.Button(self.canvas_batdau, text="Mở Thư Mục Hiện Hành ", font=self.font, fg="#ffffff",
                                        bg="#263942",
                                        width=20, height=2)
         self.buttonThuMuc["command"] = openThuMuc
-        self.buttonThuMuc.grid(row=11, column=0)
+        self.buttonThuMuc.grid(row=12, column=0)
 
         self.label_trang_thai = jra.Label(self.canvas_batdau, text="Downloading and uploading your files")
 
         self.progress_bar = ttk.Progressbar(self.canvas_batdau, orient=jra.HORIZONTAL, length=100, mode="determinate")
 
-
         self.huongDan = jra.Label(self.canvas_batdau, text="\nBất kì vấn đề nào \n phudinhtruongk18@gmail.com", width=60)
-        self.huongDan.grid(row=12, column=0)
+        self.huongDan.grid(row=13, column=0)
 
         self.canvas_batdau.grid()
+
+        self.warehouse_file = None
+        self.day_sale_file = None
+        self.stock_in_day = None
 
         self.grid()
         self.mainloop()
 
+    def pick_day_file(self):
+        fileName = askopenfilename(defaultextension='.xlsx', initialdir=".")
+        temp_name = str(fileName).split("/")[-1]
+        self.pick_day_data.configure(text=temp_name)
+        self.day_sale_file = fileName
+
+        self.stock_in_day = SaleData(fileName)
+        self.reset_saved_sessions(self.stock_in_day.sheet_names)
+
+    def pick_warehouse_file(self):
+        fileName = askopenfilename(defaultextension='.xlsx', initialdir=".")
+        temp_name = str(fileName).split("/")[-1]
+        self.pick_warehouse.configure(text=temp_name)
+        self.warehouse_file = fileName
+
+    def reset_saved_sessions(self,session_list):
+        # change database here
+        self.menu_option.delete(0, "end")
+        for session in session_list:
+            # set session.ID for trace after select in option menu
+            self.menu_option.add_command(label=session, command=lambda value=session: self.string_selected_sheet.set(value))
+
     def kiem_tra_va_thuc_thi(self):
-        if not os.path.exists("Output"):
-            os.mkdir("Output")
-        try:
-            api_key = int(self.entry_api.get())
-        except Exception as e:
-            messagebox.showinfo("Check threads number ",e)
-            return
-        if api_key < 0:
-            messagebox.showinfo("Check threads number","Check threads number")
-            return
-        print("Your thread", api_key)
-        link_tonghop = self.entry_link.get('1.0', 'end')
-        list_link = []
-        for temp in str(link_tonghop).split("\n"):
-            list_link.append(temp.strip())
-        print(list_link)
 
-        thuc_thi_cong_viec(api_key,list_link)
+        create_export_fordel("./Output")
+        create_export_fordel("./Output/Plot")
+
+        self.stock_in_day = SaleData("./Data/day_sale.xlsx")
+
+        print(self.string_selected_sheet)
+        self.stock_in_day.get_list_product(self.string_selected_sheet.get())
+
+        print(self.stock_in_day.products_in_day.__len__())
+
+        raw_data = read_warehouse(self.warehouse_file, "SOH GOOD")
+        warehouse = WareHouse(products_on_hand=raw_data)
+
+        # they are romeo and juliet in 2021
+        warehouse.set_sale_in_day(self.stock_in_day.products_in_day)
+        # check stock not in warehouse
+        stock_non_def = warehouse.get_stocks_not_in_warehouse()
+        print(stock_non_def)
+        if stock_non_def.__len__() > 0:
+            messagebox.showinfo("Check your warehouse", "There are non define bar code!")
+            warehouse.export_text_file_non_define_stock_in_warehouse(stock_non_def)
+            return
+
+        warehouse.cuculate_stock()
+        summ_in = warehouse.get_sum_in()
+        summ_sale = warehouse.get_sum_sale()
+        summ_ava = warehouse.get_sum_ava()
+        warehouse.export(summ_in, summ_sale, summ_ava)
+
+        warehouse.visualization(self.is_visualization)
+
         messagebox.showinfo("Done","Complete! Thank for using my tool")
-
-    def thuc_thi_khi_hoantat(self, ten_file):
-        self.canvas_batdau.grid_forget()
-        self.canvas_ketuqua.grid()
-        self.Text_ketqua.delete('1.0', jra.END)
-        self.entry_link.delete('1.0', jra.END)
-        fileCanMo = open(ten_file, "r")
-        dulieu = fileCanMo.read()
-        fileCanMo.close()
-        self.Text_ketqua.insert('1.0', dulieu)
 
 
 print("Hello")
 giaoDien = jra.Tk()
-apikey = ""
 
-app = Application(master=giaoDien,api_key=str(apikey.strip()))
+app = Application(master=giaoDien)

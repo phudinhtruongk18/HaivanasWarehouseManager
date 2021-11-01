@@ -1,5 +1,9 @@
 from ExcelManager import read_warehouse
 from ObjCanThiet import WareHouse,ProductInDay,ProductOnHand,SaleData
+from helper import  create_export_fordel
+
+create_export_fordel("./Output")
+create_export_fordel("./Output/Plot")
 
 stock_in_day = SaleData("./Data/day_sale.xlsx")
 print(stock_in_day.sheet_names)

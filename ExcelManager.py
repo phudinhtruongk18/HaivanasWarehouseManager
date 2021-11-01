@@ -25,7 +25,7 @@ def read_warehouse(fileName, sheetname):
 def export_warehouse(warehouse_stock, sum_in, sum_sale, sum_ava):
     ghiData = excel.Workbook()
     trangTinh = ghiData.active
-    trangTinh.title = "Sheet1"
+    trangTinh.title = "SOH GOOD"
 
     trangTinh.append(("WAREHOUSE'S THU HUONG HAVAIANAS",))
     trangTinh.merge_cells(f'A1:F2')

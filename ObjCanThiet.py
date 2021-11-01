@@ -230,7 +230,7 @@ class WareHouse(list):
         x = datetime.datetime.now()
         date = x.strftime("%Y-%m-%d-%Hh%M")
 
-        with open("Output/non_define " + date + ".txt", "w") as text:
+        with open("Output/non_define " + date + ".txt", "w",encoding="utf8") as text:
             for stock in not_in_warehouse:
                 text.write(stock.bar_code + "\n")
 
@@ -257,29 +257,30 @@ class WareHouse(list):
         print(dataframe)
         return dataframe
 
-    def visualization(self):
+    def visualization(self,is_visualization):
         dataframe = self.to_data_frame()
 
         watehouse = dataframe.sort_values(by=['new_ava_stock'], ascending=False)
         watehouse = watehouse[:50]
         print(watehouse)
 
-        watehouse.plot(kind='bar', x='vn_name', y='new_ava_stock',figsize=(20,8))
+        watehouse.plot(kind='bar', x='vn_name', y='new_ava_stock',figsize=(20,8),title="Warehouse")
         plt.xticks(rotation=40)
-        plt.savefig("Output/warehouse.jpg")
+        plt.savefig("Output/Plot/warehouse.jpg")
 
         best_sell = dataframe.sort_values(by=['sale_stock'], ascending=False)
         best_sell = best_sell[:50]
-        best_sell.plot(kind='bar', x='vn_name', y='sale_stock',figsize=(20,8))
+        best_sell.plot(kind='bar', x='vn_name', y='sale_stock',figsize=(20,8),title="Best seller")
 
         plt.xticks(rotation=40)
-        plt.savefig("Output/best_seller.jpg")
+        plt.savefig("Output/Plot/best_seller.jpg")
 
         in_stock = dataframe.sort_values(by=['in_stock'], ascending=False)
         in_stock = in_stock[:50]
-        in_stock.plot(kind='bar', x='vn_name', y='in_stock',figsize=(20,8))
+        in_stock.plot(kind='bar', x='vn_name', y='in_stock',figsize=(20,8),title="Return")
 
         plt.xticks(rotation=40)
-        plt.savefig("Output/return.jpg")
-        plt.show()
+        plt.savefig("Output/Plot/return.jpg")
+        if is_visualization:
+            plt.show()
 
