@@ -1,49 +1,9 @@
 import openpyxl as excel
 
 
-class ProductOnHand():
-    def __init__(self, *args):
-        self.bar_code = args[0]
-        self.en_name = args[1]
-        self.vn_name = args[2]
-        self.in_stock = args[3]
-        self.sale_stock = args[4]
-        self.ava_stock = args[5]
-        if not isinstance(self.ava_stock, int):
-            print('not int', self.ava_stock)
-
-    def __str__(self):
-        return f"\n {self.bar_code} en_name: {self.en_name} + vn_name {self.vn_name} " \
-               f"in_stock {self.in_stock}sale_stock {self.sale_stock} ava_stock {self.ava_stock}" + f"\n {self.bar_code} en_name: {self.en_name} + vn_name {self.vn_name} " \
-                                                                                                    f"in_stock {type(self.in_stock)}sale_stock {type(self.sale_stock)} ava_stock {type(self.ava_stock)}"
-
-
-class WareHouse(list):
-    def __init__(self, products_on_hand):
-        super().__init__()
-        for product in products_on_hand:
-            self.append(ProductOnHand(*product))
-
-    def show_stock(self):
-        for temp in self:
-            print(temp)
-
-    def read_data(self):
-        print("READ")
-
-    def export(self):
-        print("EXPORT")
-
-    def sum_stock(self):
-        print("SUM")
-
-    def visualization(self):
-        print("VIS")
-
-
 class ProductInDay():
     def __init__(self, bar_code):
-        self.bar_code = bar_code
+        self.bar_code = str(bar_code).strip()
         self.sale_quantity = 0
         self.in_quantity = 0
 
@@ -61,6 +21,13 @@ class ProductInDay():
 
     def show_info(self):
         print(self.bar_code, str(self.sale_quantity), str(self.in_quantity))
+
+    def is_in_warehouse(self,bar_code_in_warehouse):
+        if self.bar_code in bar_code_in_warehouse:
+            return True
+        else:
+            print("not in ware house",self.bar_code)
+            return False
 
 
 class SaleData:
@@ -161,5 +128,98 @@ class SaleData:
                 product.set_in_quantity(quantity=quantity)
                 self.products_in_day.append(product)
 
-        for temp in self.products_in_day:
-            print(temp.bar_code,temp.sale_quantity,temp.in_quantity)
+
+class ProductOnHand:
+    def __init__(self, *args):
+        self.bar_code = str(args[0]).strip()
+        self.en_name = args[1]
+        self.vn_name = args[2]
+        # self.in_stock = args[3]
+        # self.sale_stock = args[4]
+        self.in_stock = 0
+        self.sale_stock = 0
+
+        self.ava_stock = args[5]
+        if not isinstance(self.ava_stock, int):
+            print('not int', self.ava_stock)
+            raise TypeError("Warehouse file is wrong at ",self.bar_code)
+
+        self.new_ava_stock = 0
+
+    def __str__(self):
+        return f"\n {self.bar_code} en_name: {self.en_name} + vn_name {self.vn_name} " \
+               f"in_stock {self.in_stock}sale_stock {self.sale_stock} ava_stock {self.ava_stock}" \
+               f"  new_ava_stock {self.new_ava_stock}"
+
+    def update_stock(self,stock_in_day):
+        self.sale_stock = stock_in_day.sale_quantity
+        self.in_stock = stock_in_day.in_quantity
+        self.new_ava_stock = self.ava_stock - self.sale_stock + self.in_stock
+
+
+class WareHouse(list):
+    def __init__(self, products_on_hand):
+        super().__init__()
+        self.bar_code_list = []
+        for product in products_on_hand:
+            product = ProductOnHand(*product)
+            self.append(product)
+            self.bar_code_list.append(product.bar_code)
+        self.sale_in_day = None
+
+    def set_sale_in_day(self, sale_in_day):
+        self.sale_in_day = sale_in_day
+
+    def show_stock(self):
+        for product_on_hand in self:
+            print(product_on_hand)
+
+    def find_index_stock(self,stock):
+        for index,temp_pro in enumerate(self):
+            if temp_pro.bar_code == stock.bar_code:
+                return index
+        # khong co truong hop else duoc boi vi da kiem tra 1 lan
+
+    def cuculate_stock(self):
+        # da~ pass bai kiem tra ton tai thu nhat
+        # nen gio chi can return index cua no va thay doi
+        # in sale new ava de export
+        for stock in self.sale_in_day:
+            # print("=============================")
+            # print("Before")
+            index_stock = self.find_index_stock(stock)
+            # print(self[index_stock])
+
+            # print("After")
+            self[index_stock].update_stock(stock)
+            # print(self[index_stock])
+            # print("=============================")
+
+
+
+    def get_stocks_not_in_warehouse(self):
+        not_in_warehouse = []
+        for day_stock in self.sale_in_day:
+            # if the barcode is not exist in the warehouse so add this stock to list
+            if not day_stock.is_in_warehouse(self.bar_code_list):
+                not_in_warehouse.append(day_stock)
+        return not_in_warehouse
+
+    def export_text_file_non_define_stock_in_warehouse(self,not_in_warehouse):
+        with open("Output/non_define.txt", "w") as text:
+            for stock in not_in_warehouse:
+                text.write(stock.bar_code + "\n")
+
+
+
+    def read_data(self):
+        print("READ")
+
+    def export(self):
+        print("EXPORT")
+
+
+    def visualization(self):
+        print("VIS")
+
+

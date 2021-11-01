@@ -15,7 +15,7 @@ def read_warehouse(fileName,sheetname):
         if index < 3:
             continue
         # ket thuc neu xuat hien chu nay
-        if dataTemp[0] is None or dataTemp[0] == "":
+        if dataTemp[0] is None or dataTemp[0] == "END_WAREHOUSE":
             break
         # lay du lieu tu 7 cot
         listDuLieuTemp.append(dataTemp[:7])
