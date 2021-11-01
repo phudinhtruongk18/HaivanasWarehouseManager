@@ -15,4 +15,3 @@ get_sheet = "31.10"
 
 in_stocks = stock_in_day.get_list_product(get_sheet)
 
-

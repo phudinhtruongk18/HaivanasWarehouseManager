@@ -10,12 +10,12 @@ class ProductOnHand():
         self.sale_stock = args[4]
         self.ava_stock = args[5]
         if not isinstance(self.ava_stock, int):
-            print('not int',self.ava_stock)
+            print('not int', self.ava_stock)
 
     def __str__(self):
         return f"\n {self.bar_code} en_name: {self.en_name} + vn_name {self.vn_name} " \
-               f"in_stock {self.in_stock}sale_stock {self.sale_stock} ava_stock {self.ava_stock}"+f"\n {self.bar_code} en_name: {self.en_name} + vn_name {self.vn_name} " \
-               f"in_stock {type(self.in_stock)}sale_stock {type(self.sale_stock)} ava_stock {type(self.ava_stock)}"
+               f"in_stock {self.in_stock}sale_stock {self.sale_stock} ava_stock {self.ava_stock}" + f"\n {self.bar_code} en_name: {self.en_name} + vn_name {self.vn_name} " \
+                                                                                                    f"in_stock {type(self.in_stock)}sale_stock {type(self.sale_stock)} ava_stock {type(self.ava_stock)}"
 
 
 class WareHouse(list):
@@ -42,32 +42,43 @@ class WareHouse(list):
 
 
 class ProductInDay():
-    def __init__(self, bar_code,is_sell,quantity):
+    def __init__(self, bar_code):
         self.bar_code = bar_code
-        self.is_sell = is_sell
-        self.quantity = quantity
+        self.sale_quantity = 0
+        self.in_quantity = 0
 
-    def add_quantity(self,quantity):
-        self.quantity += quantity
+    def set_sale_quantity(self, quantity):
+        self.sale_quantity = quantity
+
+    def set_in_quantity(self, quantity):
+        self.in_quantity = quantity
+
+    def add_sale_quantity(self, quantity):
+        self.sale_quantity += quantity
+
+    def add_in_quantity(self, quantity):
+        self.in_quantity += quantity
+
+    def show_info(self):
+        print(self.bar_code, str(self.sale_quantity), str(self.in_quantity))
 
 
-class SaleData():
+class SaleData:
     def __init__(self, fileName):
         self.workbook = excel.load_workbook(filename=fileName)
         self.sheet_names = self.workbook.get_sheet_names()
-        self.sale_product = []
-        self.in_product = []
+        self.products_in_day = []
         self.checked_sale = []
 
     def get_sheets(self):
         return self.sheet_names
 
-    def get_sheet_data(self,sheetname):
-        data = self.workbook[sheetname]
+    def get_sheet_data(self, sheet_name):
+        data = self.workbook[sheet_name]
         return data
 
-    def get_sale_stocks(self,sheetname):
-        data = self.get_sheet_data(sheetname=sheetname)
+    def get_sale_stocks(self, sheet_name):
+        data = self.get_sheet_data(sheet_name=sheet_name)
         sale_stocks = []
 
         for index, data_temp in enumerate(data.values):
@@ -81,8 +92,8 @@ class SaleData():
 
         return sale_stocks
 
-    def get_shop_sale_stocks(self,sheetname):
-        data = self.get_sheet_data(sheetname=sheetname)
+    def get_shop_sale_stocks(self, sheetname):
+        data = self.get_sheet_data(sheet_name=sheetname)
         sale_stocks = []
 
         for index, data_temp in enumerate(data.values):
@@ -95,8 +106,8 @@ class SaleData():
             sale_stocks.append(data_temp[6:8])
         return sale_stocks
 
-    def get_in_stocks(self,sheetname):
-        data = self.get_sheet_data(sheetname=sheetname)
+    def get_in_stocks(self, sheetname):
+        data = self.get_sheet_data(sheet_name=sheetname)
         in_stocks = []
 
         for index, data_temp in enumerate(data.values):
@@ -109,8 +120,8 @@ class SaleData():
             in_stocks.append(data_temp[11:13])
         return in_stocks
 
-    def find_index_sale_product(self,bar_code):
-        for index_product,temp_pro in enumerate(self.sale_product):
+    def find_index_sale_product(self, bar_code):
+        for index_product, temp_pro in enumerate(self.products_in_day):
             if temp_pro.bar_code == bar_code:
                 return index_product
 
@@ -126,11 +137,29 @@ class SaleData():
             if bae_code in self.checked_sale:
                 # neu checked list thi tim index va plus in quantity
                 index_product = self.find_index_sale_product(bae_code)
-                self.sale_product[index_product].add_quantity(quantity)
+                self.products_in_day[index_product].add_sale_quantity(quantity)
+
             else:
                 # neu khong trong checked list them vao sale_product
                 self.checked_sale.append(bae_code)
-                product = ProductInDay(bar_code=bae_code, is_sell=True, quantity=quantity)
-                self.sale_product.append(product)
+                product = ProductInDay(bar_code=bae_code)
+                product.set_sale_quantity(quantity=quantity)
+                self.products_in_day.append(product)
 
-        # test ket qua cua self.sale_product va hoan thien inprodcut o duoi fay
+        # tuong tu voi hang nhap vao
+        for temp_sale in in_stocks:
+            bae_code = temp_sale[0]
+            quantity = temp_sale[1]
+            if bae_code in self.checked_sale:
+                # neu checked list thi tim index va plus in quantity
+                index_product = self.find_index_sale_product(bae_code)
+                self.products_in_day[index_product].add_in_quantity(quantity)
+            else:
+                # neu khong trong checked list them vao sale_product
+                self.checked_sale.append(bae_code)
+                product = ProductInDay(bar_code=bae_code)
+                product.set_in_quantity(quantity=quantity)
+                self.products_in_day.append(product)
+
+        for temp in self.products_in_day:
+            print(temp.bar_code,temp.sale_quantity,temp.in_quantity)
