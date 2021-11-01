@@ -1,5 +1,6 @@
 import openpyxl as excel
-
+from ExcelManager import export_warehouse
+import datetime
 
 class ProductInDay():
     def __init__(self, bar_code):
@@ -146,6 +147,10 @@ class ProductOnHand:
 
         self.new_ava_stock = 0
 
+    def excel_format(self):
+        # not get self.ava_stock just need new_ava_stock after caculate
+        return [self.bar_code, self.en_name, self.vn_name, self.in_stock, self.sale_stock, self.new_ava_stock]
+
     def __str__(self):
         return f"\n {self.bar_code} en_name: {self.en_name} + vn_name {self.vn_name} " \
                f"in_stock {self.in_stock}sale_stock {self.sale_stock} ava_stock {self.ava_stock}" \
@@ -195,7 +200,8 @@ class WareHouse(list):
             # print(self[index_stock])
             # print("=============================")
 
-
+    def export(self):
+        export_warehouse(self)
 
     def get_stocks_not_in_warehouse(self):
         not_in_warehouse = []
@@ -206,18 +212,12 @@ class WareHouse(list):
         return not_in_warehouse
 
     def export_text_file_non_define_stock_in_warehouse(self,not_in_warehouse):
-        with open("Output/non_define.txt", "w") as text:
+        x = datetime.datetime.now()
+        date = x.strftime("%Y-%m-%d-%Hh%M")
+
+        with open("Output/non_define " + date + ".txt", "w") as text:
             for stock in not_in_warehouse:
                 text.write(stock.bar_code + "\n")
-
-
-
-    def read_data(self):
-        print("READ")
-
-    def export(self):
-        print("EXPORT")
-
 
     def visualization(self):
         print("VIS")

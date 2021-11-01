@@ -5,7 +5,7 @@ from openpyxl.styles import Font, Alignment, GradientFill
 from openpyxl.utils import get_column_letter
 
 
-def read_warehouse(fileName,sheetname):
+def read_warehouse(fileName, sheetname):
     # time a lot of time
     docData = excel.load_workbook(filename=fileName)
     duLieu = docData[sheetname]
@@ -22,55 +22,51 @@ def read_warehouse(fileName,sheetname):
     return listDuLieuTemp
 
 
-def XuatFileExcel(list_xuat):
+def export_warehouse(warehouse_stock):
     ghiData = excel.Workbook()
     trangTinh = ghiData.active
     trangTinh.title = "Sheet1"
 
-    trangTinh.append(("        URL        ", "Meta", "                                                 Content                                  "))
-    a = trangTinh['A1']
-    b = trangTinh['B1']
-    c = trangTinh['C1']
+    trangTinh.append(("WAREHOUSE'S THU HUONG HAVAIANAS",))
+    trangTinh.merge_cells(f'A1:F2')
+    trangTinh.append(("",))
+    title = trangTinh['A1']
 
-    a.font = Font(size=16, bold=True)
-    b.font = Font(size=16, bold=True)
-    c.font = Font(size=16, bold=True)
-    ft = Font(size=11)
+    title.font= Font(size=19, bold=True)
+    font_son = Font(size=12)
+    font_father = Font(size=16, bold=True)
 
-    # fill_father = GradientFill(stop=("FA4039", "FA4039"))
-    # fill_son = GradientFill(stop=("FFAD19", "FFAD19"))
+    fill_father = GradientFill(stop=("FFEC4F", "FFEC4F"))
+    alignment = Alignment(horizontal="center", vertical="center")
 
-    adjust_column_width_from_col(trangTinh, 1, 1, trangTinh.max_column)
-    stt = 2
+    title.alignment = alignment
 
-    mau = True
-    for index, object_nek in enumerate(list_xuat):
-        # if mau:
-        #     fill_chon = fill_father
-        # else:
-        #     fill_chon = fill_son
-        # mau = not mau
+    trangTinh.append(("BARCODE", "ENGLISH NAME", "VIETNAMESE NAME", "IN", "SALE", "QUANTITY"))
+    a = trangTinh['A3']
+    b = trangTinh['B3']
+    c = trangTinh['C3']
+    d = trangTinh['D3']
+    e = trangTinh['E3']
+    f = trangTinh['F3']
 
-        for doituong_matches in object_nek.excel_format():
-            print(doituong_matches)
-            trangTinh.append((
-                doituong_matches
-            ))
+    a.fill = b.fill = c.fill = d.fill = e.fill = f.fill = fill_father
+    a.font = b.font = c.font = d.font = e.font = f.font = font_father
 
-            a = trangTinh[f'A{stt}']
-            b = trangTinh[f'B{stt}']
-            c = trangTinh[f'C{stt}']
-            stt += 1
-            # a.fill = fill_chon
-            # b.fill = fill_chon
-            # c.fill = fill_chon
-            a.font = ft
-            b.font = ft
-            c.font = ft
+    adjust_column_width_from_col(trangTinh, 3, 1, trangTinh.max_column)
 
-            # a.alignment = Alignment(horizontal="center", vertical="center")
-            # b.alignment = Alignment(horizontal="center", vertical="center")
-            # c.alignment = Alignment(horizontal="center", vertical="center")
+    index_cell = 4
+    for index, stock in enumerate(warehouse_stock):
+        trangTinh.append((stock.excel_format()))
+        a = trangTinh[f'A{index_cell + index}']
+        b = trangTinh[f'B{index_cell + index}']
+        c = trangTinh[f'C{index_cell + index}']
+        d = trangTinh[f'D{index_cell + index}']
+        e = trangTinh[f'E{index_cell + index}']
+        f = trangTinh[f'F{index_cell + index}']
+        a.font = b.font = c.font = d.font = e.font = f.font = font_son
+        a.alignment = b.alignment = c.alignment = d.alignment = e.alignment = f.alignment = alignment
+
+    trangTinh.append(("END_WAREHOUSE",))
 
     linkthumuc = os.curdir
     x = datetime.datetime.now()
@@ -100,5 +96,5 @@ def adjust_column_width_from_col(ws, min_row, min_col, max_col):
 
     for i, width in enumerate(column_widths):
         col_name = get_column_letter(min_col + i)
-        value = column_widths[i] + 10
+        value = column_widths[i] + 20
         ws.column_dimensions[col_name].width = value

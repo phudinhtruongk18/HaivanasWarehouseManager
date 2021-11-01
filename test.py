@@ -22,3 +22,4 @@ if stock_non_def.__len__() > 0:
     # return ngay day
 
 warehouse.cuculate_stock()
+warehouse.export()
