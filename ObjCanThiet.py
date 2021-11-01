@@ -3,8 +3,6 @@ from ExcelManager import export_warehouse
 import datetime
 import pandas
 import matplotlib.pyplot as plt
-import seaborn as sns
-from scipy.stats import norm, boxcox
 
 
 class ProductInDay:

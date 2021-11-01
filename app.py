@@ -91,12 +91,13 @@ class Application(jra.Frame):
         self.warehouse_file = None
         self.day_sale_file = None
         self.stock_in_day = None
+        self.linkFile = os.path.realpath("")
 
         self.grid()
         self.mainloop()
 
     def pick_day_file(self):
-        fileName = askopenfilename(defaultextension='.xlsx', initialdir=".")
+        fileName = askopenfilename(defaultextension='.xlsx', initialdir=self.linkFile)
         temp_name = str(fileName).split("/")[-1]
         self.pick_day_data.configure(text=temp_name)
         self.day_sale_file = fileName
@@ -105,7 +106,7 @@ class Application(jra.Frame):
         self.reset_saved_sessions(self.stock_in_day.sheet_names)
 
     def pick_warehouse_file(self):
-        fileName = askopenfilename(defaultextension='.xlsx', initialdir=".")
+        fileName = askopenfilename(defaultextension='.xlsx', initialdir=self.linkFile)
         temp_name = str(fileName).split("/")[-1]
         self.pick_warehouse.configure(text=temp_name)
         self.warehouse_file = fileName
@@ -122,7 +123,7 @@ class Application(jra.Frame):
         create_export_fordel("./Output")
         create_export_fordel("./Output/Plot")
 
-        self.stock_in_day = SaleData("./Data/day_sale.xlsx")
+        self.stock_in_day = SaleData(self.day_sale_file)
 
         print(self.string_selected_sheet)
         self.stock_in_day.get_list_product(self.string_selected_sheet.get())
@@ -148,9 +149,9 @@ class Application(jra.Frame):
         summ_ava = warehouse.get_sum_ava()
         warehouse.export(summ_in, summ_sale, summ_ava)
 
-        warehouse.visualization(self.is_visualization)
+        warehouse.visualization(self.is_visualization.get())
 
-        messagebox.showinfo("Done","Complete! Thank for using my tool")
+        messagebox.showinfo("Done","Complete! Thank for using aram tool")
 
 
 print("Hello")
