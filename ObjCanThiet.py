@@ -1,3 +1,4 @@
+from tkinter import messagebox
 import openpyxl as excel
 from ExcelManager import export_warehouse
 import datetime
@@ -134,7 +135,7 @@ class SaleData:
 
 
 class ProductOnHand:
-    def __init__(self, *args):
+    def __init__(self,index, *args):
         self.bar_code = str(args[0]).strip()
         self.en_name = args[1]
         self.vn_name = args[2]
@@ -146,7 +147,7 @@ class ProductOnHand:
         self.ava_stock = args[5]
         if not isinstance(self.ava_stock, int):
             print('not int', self.ava_stock)
-            raise TypeError("Warehouse file is wrong at ",self.bar_code)
+            raise TypeError("Warehouse file is wrong at ",self.bar_code + " - row " + str(index+4) +" in warehouse")
 
         self.new_ava_stock = 0
 
@@ -179,8 +180,8 @@ class WareHouse(list):
     def __init__(self, products_on_hand):
         super().__init__()
         self.bar_code_list = []
-        for product in products_on_hand:
-            product = ProductOnHand(*product)
+        for index,product in enumerate(products_on_hand):
+            product = ProductOnHand(index,*product)
             self.append(product)
             self.bar_code_list.append(product.bar_code)
         self.sale_in_day = None
@@ -228,9 +229,29 @@ class WareHouse(list):
         x = datetime.datetime.now()
         date = x.strftime("%Y-%m-%d-%Hh%M")
 
-        with open("Output/non_define " + date + ".txt", "w",encoding="utf8") as text:
-            for stock in not_in_warehouse:
-                text.write(stock.bar_code + "\n")
+        try:
+            with open("Output/non_define 2 " + date + ".txt", "w",encoding="utf8") as text:
+                for stock in not_in_warehouse:
+                    text.write(stock.bar_code + "\n")
+
+            with open("Output/non_define 1 " + date + ".txt", "w",encoding="utf8") as text:
+                text.write("\nIn and Out \n")
+                for stock in not_in_warehouse:
+                    if stock.in_quantity > 0 and stock.sale_quantity > 0:
+                        text.write(stock.bar_code + "\n")
+                text.write("\nOut \n")
+                # write out stock
+                for stock in not_in_warehouse:
+                    if stock.sale_quantity > 0:
+                        text.write(stock.bar_code + "\n")
+                # write in stock
+                text.write("\nIn \n")
+                for stock in not_in_warehouse:
+                    if stock.in_quantity > 0:
+                        text.write(stock.bar_code + "\n")
+        except Exception as e:
+            messagebox.showerror("Error", "Can not export file" + str(e))
+
 
     def get_sum_in(self):
         sum_in = 0
@@ -256,29 +277,29 @@ class WareHouse(list):
         return dataframe
 
     def visualization(self,is_visualization):
-        dataframe = self.to_data_frame()
-
-        watehouse = dataframe.sort_values(by=['new_ava_stock'], ascending=False)
-        watehouse = watehouse[:50]
-        print(watehouse)
-
-        watehouse.plot(kind='bar', x='vn_name', y='new_ava_stock',figsize=(20,8),title="Warehouse")
-        plt.xticks(rotation=40)
-        plt.savefig("Output/Plot/warehouse.jpg")
-
-        best_sell = dataframe.sort_values(by=['sale_stock'], ascending=False)
-        best_sell = best_sell[:50]
-        best_sell.plot(kind='bar', x='vn_name', y='sale_stock',figsize=(20,8),title="Best seller")
-
-        plt.xticks(rotation=40)
-        plt.savefig("Output/Plot/best_seller.jpg")
-
-        in_stock = dataframe.sort_values(by=['in_stock'], ascending=False)
-        in_stock = in_stock[:50]
-        in_stock.plot(kind='bar', x='vn_name', y='in_stock',figsize=(20,8),title="Return")
-
-        plt.xticks(rotation=40)
-        plt.savefig("Output/Plot/return.jpg")
         if is_visualization:
+            dataframe = self.to_data_frame()
+
+            watehouse = dataframe.sort_values(by=['new_ava_stock'], ascending=False)
+            watehouse = watehouse[:50]
+            print(watehouse)
+
+            watehouse.plot(kind='bar', x='vn_name', y='new_ava_stock',figsize=(20,8),title="Warehouse")
+            plt.xticks(rotation=40)
+            plt.savefig("Output/Plot/warehouse.jpg")
+
+            best_sell = dataframe.sort_values(by=['sale_stock'], ascending=False)
+            best_sell = best_sell[:50]
+            best_sell.plot(kind='bar', x='vn_name', y='sale_stock',figsize=(20,8),title="Best seller")
+
+            plt.xticks(rotation=40)
+            plt.savefig("Output/Plot/best_seller.jpg")
+
+            in_stock = dataframe.sort_values(by=['in_stock'], ascending=False)
+            in_stock = in_stock[:50]
+            in_stock.plot(kind='bar', x='vn_name', y='in_stock',figsize=(20,8),title="Return")
+
+            plt.xticks(rotation=40)
+            plt.savefig("Output/Plot/return.jpg")
             plt.show()
 

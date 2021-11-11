@@ -131,7 +131,11 @@ class Application(jra.Frame):
         print(self.stock_in_day.products_in_day.__len__())
 
         raw_data = read_warehouse(self.warehouse_file, "SOH GOOD")
-        warehouse = WareHouse(products_on_hand=raw_data)
+        try:
+            warehouse = WareHouse(products_on_hand=raw_data)
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+            return
 
         # they are romeo and juliet in 2021
         warehouse.set_sale_in_day(self.stock_in_day.products_in_day)
