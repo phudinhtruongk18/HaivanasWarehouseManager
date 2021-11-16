@@ -2,8 +2,8 @@ from tkinter import messagebox
 import openpyxl as excel
 from ExcelManager import export_warehouse
 import datetime
-import pandas
-import matplotlib.pyplot as plt
+# import pandas
+# import matplotlib.pyplot as plt
 
 
 class ProductInDay:
@@ -136,6 +136,7 @@ class SaleData:
 
 class ProductOnHand:
     def __init__(self,index, *args):
+        self.is_updated = False
         self.bar_code = str(args[0]).strip()
         self.en_name = args[1]
         self.vn_name = args[2]
@@ -152,8 +153,12 @@ class ProductOnHand:
         self.new_ava_stock = 0
 
     def excel_format(self):
+        if self.is_updated:
         # not get self.ava_stock just need new_ava_stock after caculate
-        return [self.bar_code, self.en_name, self.vn_name, self.in_stock, self.sale_stock, self.new_ava_stock]
+            return [self.bar_code, self.en_name, self.vn_name, self.in_stock, self.sale_stock, self.new_ava_stock]
+        else:
+            return [self.bar_code, self.en_name, self.vn_name, self.in_stock, self.sale_stock, self.ava_stock]
+
 
     def __str__(self):
         return f"\n {self.bar_code} en_name: {self.en_name} + vn_name {self.vn_name} " \
@@ -164,6 +169,8 @@ class ProductOnHand:
         self.sale_stock = stock_in_day.sale_quantity
         self.in_stock = stock_in_day.in_quantity
         self.new_ava_stock = self.ava_stock - self.sale_stock + self.in_stock
+        self.is_updated = True
+
 
     def to_dict(self):
         return {
@@ -276,30 +283,30 @@ class WareHouse(list):
         print(dataframe)
         return dataframe
 
-    def visualization(self,is_visualization):
-        if is_visualization:
-            dataframe = self.to_data_frame()
+    # def visualization(self,is_visualization):
+    #     if is_visualization:
+    #         dataframe = self.to_data_frame()
 
-            watehouse = dataframe.sort_values(by=['new_ava_stock'], ascending=False)
-            watehouse = watehouse[:50]
-            print(watehouse)
+    #         watehouse = dataframe.sort_values(by=['new_ava_stock'], ascending=False)
+    #         watehouse = watehouse[:50]
+    #         print(watehouse)
 
-            watehouse.plot(kind='bar', x='vn_name', y='new_ava_stock',figsize=(20,8),title="Warehouse")
-            plt.xticks(rotation=40)
-            plt.savefig("Output/Plot/warehouse.jpg")
+    #         watehouse.plot(kind='bar', x='vn_name', y='new_ava_stock',figsize=(20,8),title="Warehouse")
+    #         plt.xticks(rotation=40)
+    #         plt.savefig("Output/Plot/warehouse.jpg")
 
-            best_sell = dataframe.sort_values(by=['sale_stock'], ascending=False)
-            best_sell = best_sell[:50]
-            best_sell.plot(kind='bar', x='vn_name', y='sale_stock',figsize=(20,8),title="Best seller")
+    #         best_sell = dataframe.sort_values(by=['sale_stock'], ascending=False)
+    #         best_sell = best_sell[:50]
+    #         best_sell.plot(kind='bar', x='vn_name', y='sale_stock',figsize=(20,8),title="Best seller")
 
-            plt.xticks(rotation=40)
-            plt.savefig("Output/Plot/best_seller.jpg")
+    #         plt.xticks(rotation=40)
+    #         plt.savefig("Output/Plot/best_seller.jpg")
 
-            in_stock = dataframe.sort_values(by=['in_stock'], ascending=False)
-            in_stock = in_stock[:50]
-            in_stock.plot(kind='bar', x='vn_name', y='in_stock',figsize=(20,8),title="Return")
+    #         in_stock = dataframe.sort_values(by=['in_stock'], ascending=False)
+    #         in_stock = in_stock[:50]
+    #         in_stock.plot(kind='bar', x='vn_name', y='in_stock',figsize=(20,8),title="Return")
 
-            plt.xticks(rotation=40)
-            plt.savefig("Output/Plot/return.jpg")
-            plt.show()
+    #         plt.xticks(rotation=40)
+    #         plt.savefig("Output/Plot/return.jpg")
+    #         plt.show()
 

@@ -153,7 +153,7 @@ class Application(jra.Frame):
         summ_ava = warehouse.get_sum_ava()
         warehouse.export(summ_in, summ_sale, summ_ava)
 
-        warehouse.visualization(self.is_visualization.get())
+        # warehouse.visualization(self.is_visualization.get())
 
         messagebox.showinfo("Done","Complete! Thank for using aram tool")
 

@@ -56,6 +56,7 @@ def export_warehouse(warehouse_stock, sum_in, sum_sale, sum_ava):
 
     index_cell = 4
     for index, stock in enumerate(warehouse_stock):
+        
         trangTinh.append((stock.excel_format()))
         a = trangTinh[f'A{index_cell + index}']
         b = trangTinh[f'B{index_cell + index}']
